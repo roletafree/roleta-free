@@ -566,4 +566,35 @@ input[type="color"] {
 
 .prize-item button:hover {
     transform: scale(1.1);
+
+}
+
+#confettiArea {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.confetti-piece {
+    position: absolute;
+    width: 8px;
+    height: 12px;
+    opacity: 0;
+    border-radius: 2px;
+}
+
+.firework {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    pointer-events: none;
+}
+
+.spark {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    opacity: 1;
 }
