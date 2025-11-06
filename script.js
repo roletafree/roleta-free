@@ -1232,62 +1232,98 @@ function removeWinningPrizeAndCloseModal(){
     closeModal();
 }
 
-function generateConfetti(color) {
+function generateConfetti(color){
     const confettiArea = document.getElementById('confettiArea');
     confettiArea.innerHTML = '';
     const count = 360;
-
-    // --- Confetes ---
-    for (let i = 0; i < count; i++) {
+    
+    // CONFETES (mantém o original)
+    for (let i=0;i<count;i++){
         const piece = document.createElement('div');
         piece.className = 'confetti-piece';
         piece.style.backgroundColor = color;
-        piece.style.left = `${Math.random() * 100}%`;
-        piece.style.top = `${Math.random() * -50}%`;
-        piece.style.transform = `rotate(${Math.random() * 360}deg)`;
-
-        const fall = 1.2 + Math.random() * 1.6;
-        const delay = Math.random() * 0.6;
+        piece.style.left = `${Math.random()*100}%`;
+        piece.style.top = `${Math.random()*-50}%`;
+        piece.style.transform = `rotate(${Math.random()*360}deg)`;
+        
+        const fall = 1.2 + Math.random()*1.6;
+        const delay = Math.random()*0.6;
         piece.style.transition = `transform ${fall}s ease-out ${delay}s, opacity .6s ease-in ${delay}s`;
-
-        requestAnimationFrame(() => {
+        
+        requestAnimationFrame(()=> {
             piece.style.opacity = 1;
-            piece.style.transform = `rotate(${Math.random() * 720}deg) translate(${(Math.random() - 0.5) * 200}px, ${300 + Math.random() * 200}px)`;
+            piece.style.transform = `rotate(${Math.random()*720}deg) translate(${(Math.random()-0.5)*200}px, ${300 + Math.random()*200}px)`;
         });
-
+        
         confettiArea.appendChild(piece);
     }
+    
+    // FOGOS DE ARTIFÍCIO (NOVO)
+    createFireworks(8); // Cria 8 fogos de artifício
+}
 
-    // --- Fogos de artifício ---
-    const fireworkCount = 6; // Quantos fogos aparecerão
-    for (let i = 0; i < fireworkCount; i++) {
-        const fw = document.createElement('div');
-        fw.className = 'firework';
-        fw.style.left = `${20 + Math.random() * 60}%`; // posição horizontal aleatória
-        fw.style.top = `${30 + Math.random() * 40}%`;
-        confettiArea.appendChild(fw);
-
-        // Cria as partículas do fogo
-        for (let j = 0; j < 20; j++) {
-            const spark = document.createElement('div');
-            spark.className = 'spark';
-            spark.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 60%)`;
-            fw.appendChild(spark);
-
-            const angle = Math.random() * Math.PI * 2;
-            const distance = 60 + Math.random() * 40;
-            const x = Math.cos(angle) * distance;
-            const y = Math.sin(angle) * distance;
-
-            spark.style.transition = `transform 1.2s ease-out, opacity 1.2s ease-out`;
+function createFireworks(count) {
+    const confettiArea = document.getElementById('confettiArea');
+    const colors = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF', '#FFFFFF', '#FFA500'];
+    
+    for (let i = 0; i < count; i++) {
+        setTimeout(() => {
+            // Posição aleatória para o fogo
+            const left = 20 + Math.random() * 60; // Entre 20% e 80%
+            const top = 30 + Math.random() * 40;  // Entre 30% e 70%
+            
+            // Cria o centro do fogo
+            const firework = document.createElement('div');
+            firework.className = 'firework-center';
+            firework.style.left = `${left}%`;
+            firework.style.top = `${top}%`;
+            firework.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            // Animação de explosão
+            firework.style.animation = `fireworkExplosion 0.8s ease-out forwards`;
+            
+            // Cria as partículas da explosão
             setTimeout(() => {
-                spark.style.transform = `translate(${x}px, ${y}px) scale(0.8)`;
-                spark.style.opacity = 0;
-            }, 100 + Math.random() * 300);
-        }
+                createFireworkParticles(left, top, firework.style.backgroundColor);
+                firework.remove(); // Remove o centro após a explosão
+            }, 400);
+            
+            confettiArea.appendChild(firework);
+            
+        }, i * 300); // Fogos sequenciais com delay
+    }
+}
 
-        // Remove o fogo após a animação
-        setTimeout(() => fw.remove(), 2000 + Math.random() * 1000);
+function createFireworkParticles(left, top, color) {
+    const confettiArea = document.getElementById('confettiArea');
+    const particleCount = 60;
+    
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'firework-particle';
+        particle.style.backgroundColor = color;
+        particle.style.left = `${left}%`;
+        particle.style.top = `${top}%`;
+        
+        // Direção aleatória para as partículas
+        const angle = (i * 6) + Math.random() * 10; // Em círculo
+        const distance = 50 + Math.random() * 80;
+        const duration = 0.8 + Math.random() * 0.4;
+        
+        particle.style.setProperty('--angle', `${angle}deg`);
+        particle.style.setProperty('--distance', `${distance}px`);
+        particle.style.setProperty('--duration', `${duration}s`);
+        
+        particle.style.animation = `fireworkParticle var(--duration) ease-out forwards`;
+        
+        confettiArea.appendChild(particle);
+        
+        // Remove a partícula após a animação
+        setTimeout(() => {
+            if (particle.parentNode) {
+                particle.remove();
+            }
+        }, duration * 1000);
     }
 }
 
@@ -1523,4 +1559,5 @@ window.onload = async () => {
     setupFullscreenButton();
     setupEventListeners();
 };
+
 
