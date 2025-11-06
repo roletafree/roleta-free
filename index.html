@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Roleta da Sorte - Vanilla JS</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="roulette-area">
+            <h1 id="rouletteTitle">ROLETA DA SORTE</h1>
+            <div id="canvasContainer">
+                <div class="pointer">
+                    <div class="pointer-triangle"></div>
+                </div>
+                <canvas id="wheelCanvas"></canvas>
+                <button class="fullscreen-button" id="fullscreenButton" title="Tela Cheia">⛶</button>
+            </div>
+            <button id="spinButton">GIRAR A ROLETA</button>
+        </div>
+        <div class="controls-area">
+            <div class="tabs">
+                <div class="tabs-list">
+                    <button class="tab-trigger" data-value="prizes" data-state="active">Prêmios</button>
+                    <button class="tab-trigger" data-value="history" data-state="inactive">Histórico</button>
+                    <button class="tab-trigger" data-value="settings" data-state="inactive">Config</button>
+                    <button class="tab-trigger" data-value="avancado" data-state="inactive">Avançado</button>
+                </div>
+                
+<!-- Conteúdo da aba Prêmios -->
+<div class="tabs-content" id="prizes-content">
+    <div class="card">
+        <div class="card-header"><h2 class="card-title">Adicionar/Editar Prêmio</h2></div>
+        <div class="card-content">
+            <div class="form-group"><label>Nome:</label><input type="text" id="newPrizeName" placeholder="Ex: 10% OFF"></div>
+            <div class="form-group" style="display:flex; gap:8px; align-items:center;">
+                <div style="flex-grow:1;">
+                    <label>Cor (Hex):</label>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <input type="text" id="newPrizeColor" value="#FFD700">
+                        <input type="color" id="newPrizeColorPicker" value="#FFD700" style="width:50px; height:40px; padding:0; border:1px solid #ccc; border-radius:4px;">
+                    </div>
+                </div>
+                <div>
+                    <button class="small" id="randomColorBtn">Cor Aleatória</button>
+                </div>
+            </div>
+            <div class="form-group" style="display:flex; gap:8px; align-items:center;">
+                <div style="flex-grow:1;">
+                    <label>Ícone (Emoji):</label>
+                    <input type="text" id="newPrizeIcon" value="🎁" maxlength="4">
+                </div>
+                <div>
+                    <button class="small" id="emojiSelectorBtn">Selecionar Emoji</button>
+                </div>
+            </div>
+            <div class="form-group"><label>Removível (só afeta o botão do modal):</label><input type="checkbox" id="newPrizeRemovable" checked></div>
+            <div style="display:flex; gap:8px;">
+                <button class="small" id="addPrizeBtn">Adicionar</button>
+                <button class="small" id="clearPrizeFormBtn">Limpar</button>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header"><h2 class="card-title">Lista de Prêmios</h2></div>
+        <div class="card-content" id="prizeListContainer"></div>
+    </div>
+</div>
+                
+                <!-- Conteúdo da aba Histórico -->
+                <div class="tabs-content hidden" id="history-content">
+                    <div class="card">
+                        <div class="card-header"><h2 class="card-title">Histórico de Sorteios (Últimos 20)</h2></div>
+                        <div class="card-content" id="spinHistoryContainer">
+                            <button class="small" id="clearHistoryBtn">Limpar Histórico</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Conteúdo da aba Configurações Básicas -->
+                <div class="tabs-content hidden" id="settings-content">
+                    <div class="card">
+                        <div class="card-header"><h2 class="card-title">Configurações da Roleta</h2></div>
+                        <div class="card-content" id="settingsContent"></div>
+                    </div>
+                </div>
+                
+                <!-- NOVA ABA: Configurações Avançadas -->
+                <div class="tabs-content hidden" id="avancado-content">
+                    <div class="card">
+                        <div class="card-header"><h2 class="card-title">Configurações Avançadas</h2></div>
+                        <div class="card-content" id="settingsAdvencedContent"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- MODAIS DENTRO DO CONTAINER PARA FUNCIONAR NO FULLSCREEN -->
+        <div id="winnerModal" class="modal-overlay hidden">
+            <div class="modal-content">
+                <div id="confettiArea"></div>
+                <div class="prize-icon" id="modalIcon">🏆</div>
+                <p class="prize-name" id="modalPrizeName">Prêmio</p>
+                <div style="margin-top:20px; display:flex; flex-direction:column; gap:10px;">
+                    <button class="button small" id="closeModalBtn">Fechar</button>
+                    <button id="removePrizeButton" class="button small hidden">Remover Prêmio da Roleta</button>
+                </div>
+            </div>
+        </div>
+        <div id="emojiSelectorModal" class="modal-overlay hidden">
+            <div class="modal-content" style="max-width:420px; padding:20px;">
+                <h3 class="card-title" style="border-bottom:1px solid #eee; padding-bottom:10px;">Selecione um Ícone</h3>
+                <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:15px; max-height:300px; overflow-y:auto;" id="emojiGrid"></div>
+                <div style="margin-top:12px;"><button class="small" id="closeEmojiModalBtn">Fechar</button></div>
+            </div>
+        </div>
+
+        <!-- Confirm modal custom -->
+        <div id="confirmModal" class="modal-overlay hidden">
+            <div class="modal-content" style="max-width:420px; padding:20px;">
+                <p id="confirmMessage" style="font-size:1.05em; margin-bottom:18px;"></p>
+                <div style="display:flex; gap:10px; justify-content:center;">
+                    <button class="small" id="confirmYesBtn">Sim</button>
+                    <button class="small" id="confirmNoBtn">Não</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast container -->
+    <div id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
