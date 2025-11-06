@@ -1259,7 +1259,7 @@ function generateConfetti(color){
     }
     
     // FOGOS DE ARTIFÍCIO (NOVO)
-    createFireworks(8); // Cria 8 fogos de artifício
+    createFireworks(25); 
 }
 
 function createFireworks(count) {
@@ -1559,5 +1559,6 @@ window.onload = async () => {
     setupFullscreenButton();
     setupEventListeners();
 };
+
 
 
